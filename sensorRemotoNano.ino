@@ -25,7 +25,7 @@ float gTimeRecord[MAX_TIME_RECORD] = {0};
 uint32_t gCountertimeRecord = 0u;
 uint8_t bufferFull = false;
 static uint32_t counterErrorsTemp = 0u;
-//Ticker gTempTicker;
+
 
 OneWire oneWire(TEMP_PIN); 
 DallasTemperature sensors(&oneWire);
@@ -58,7 +58,7 @@ void setup() {
   status_temp();
   
   // Set delay between sensor readings based on sensor d  etails.
-  delayMS = 500;//sensor.min_delay / 1000;
+  delayMS = 500;
 
   
 }
@@ -70,9 +70,9 @@ void loop() {
   
   static uint8_t counterTemp = 0;
   if (counterTemp % 2)
-  {
-    newTemp();
-  }
+		{
+			newTemp();
+		}
 
   counterTemp++;
 
@@ -97,7 +97,7 @@ void loop() {
           }
         case('2'):
           {
-           // Serial.print("Temperature (1 min):  ");
+						// Serial.print("Temperature (1 min):  ");
             elementToPrint = getTempLastTSeconds(60u,temp1min); 
             for (;i<elementToPrint;i++)
               {
@@ -112,34 +112,14 @@ void loop() {
             setReleStatus(!getReleStatus());
             break;
           }
-          case ('4'):
+				case ('4'):
           {
             Serial.println(counterErrorsTemp);
             break;
           }
         }
     }
-  // put your main code here, to run repeatedly:
-  /*sensors_event_t event;
-    dht.temperature().getEvent(&event);
-    if (isnan(event.temperature)) {
-    Serial.println(F("Error reading temperature!"));
-    Serial.println(event.temperature);
-    }
-    else {
-    Serial.print(F("Temperature: "));
-    Serial.print(event.temperature);
-    Serial.println(F("°C"));
-    }
-    dht.humidity().getEvent(&event);
-    if (isnan(event.relative_humidity)) {
-    Serial.println(F("Error reading humidity!"));
-    }
-    else {
-    Serial.print(F("Humidity: "));
-    Serial.print(event.relative_humidity);
-    Serial.println(F("%"));
-    }*/
+   
 }
 
 
@@ -151,11 +131,7 @@ static void init_sensors (void)
   digitalWrite(RELE_PIN, LOW);
   gReleStatus = LOW;
 
-   sensors.begin();
-  //dht.begin();
-
- // Timer3.initialize(10000);
- // Timer3.attachInterrupt(newTemp); // blinkLED to run every 0.15 seconds
+	sensors.begin();
  
  
 }
@@ -172,28 +148,10 @@ static void status_temp(void)
   float temp = sensors.getTempCByIndex(0);
 
   if (temp != DEVICE_DISCONNECTED_C)
-  {
-  Serial.print(temp);
-  }
-  //dht.temperature().getSensor(&sensor);
-  //Serial.println(F("------------------------------------"));
-  //Serial.println(F("Temperature Sensor"));
-  //Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-  //Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-  //Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-  //Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("°C"));
-  //Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));
-  //Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));
-  //Serial.println(F("------------------------------------"));
-  // Print humidity sensor details.
-  //dht.humidity().getSensor(&sensor);
-  //Serial.println(F("Humidity Sensor"));
-  //Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-  //Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-  //Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-  //Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("%"));
-  //Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("%"));
-  //Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));
+		{
+			Serial.print(temp);
+		}
+ 
   Serial.println(F("------------------------------------"));  
 }
 
@@ -216,10 +174,10 @@ static float getTemp(void)
   uint8_t i=0u;
   size_t counterTemperatures;
   counterTemperatures = getTempLastTSeconds(10u,auxTemp);
-  //Serial.println(counterTemperatures );
+ 
   for (;i<counterTemperatures;i++)
     {
-          temp+= auxTemp[i];
+			temp+= auxTemp[i];
     }
   temp = temp / counterTemperatures ;
   return temp;
@@ -257,30 +215,29 @@ static void newTemp(void)
   float temp = sensors.getTempCByIndex(0);
 
   if (temp != DEVICE_DISCONNECTED_C)
-  {
+		{
     
   
-  //sensors_event_t event;
-  //dht.temperature().getEvent(&event);
+ 
 
-  if(firstTemperature)
-  {
-  avgTemperature = temp;
-  firstTemperature = false;
-  } 
-  else if(temp > avgTemperature * 1.30f ||  temp < avgTemperature * 0.70)
-  {
-    counterErrorsTemp++;
-  }
-  else
-  {
-  gTimeRecord[gCountertimeRecord % MAX_TIME_RECORD]= temp;
+			if(firstTemperature)
+				{
+					avgTemperature = temp;
+					firstTemperature = false;
+				} 
+			else if(temp > avgTemperature * 1.30f ||  temp < avgTemperature * 0.70)
+				{
+					counterErrorsTemp++;
+				}
+			else
+				{
+					gTimeRecord[gCountertimeRecord % MAX_TIME_RECORD]= temp;
 
-  gCountertimeRecord == MAX_TIME_RECORD ? bufferFull = true: bufferFull = false;
+					gCountertimeRecord == MAX_TIME_RECORD ? bufferFull = true: bufferFull = false;
   
-  gCountertimeRecord = (gCountertimeRecord + 1) % MAX_TIME_RECORD; 
-  avgTemperature = (avgTemperature + temp) /2 ;
-  }
-  }
+					gCountertimeRecord = (gCountertimeRecord + 1) % MAX_TIME_RECORD; 
+					avgTemperature = (avgTemperature + temp) /2 ;
+				}
+		}
   
 }
