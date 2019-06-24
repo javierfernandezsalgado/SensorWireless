@@ -1,16 +1,11 @@
 
 
-//#include "ESP8266WiFi.h"
+
 
 
 #include <OneWire.h> 
 #include <DallasTemperature.h>
 
-
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-
-#include <DHT_U.h>
 #include <stdint.h>
 
 #define RELE_PIN (9)
