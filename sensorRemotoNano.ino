@@ -1,8 +1,5 @@
 
 
-
-
-
 #include <OneWire.h> 
 #include <DallasTemperature.h>
 
@@ -16,19 +13,18 @@
 
 uint8_t  gReleStatus;
 uint32_t delayMS;
-float gTimeRecord[MAX_TIME_RECORD] = {0};
+float  gTimeRecord[MAX_TIME_RECORD] = {0};
 uint32_t gCountertimeRecord = 0u;
-uint8_t bufferFull = false;
+uint8_t  bufferFull = false;
 static uint32_t counterErrorsTemp = 0u;
 
 
 OneWire oneWire(TEMP_PIN); 
 DallasTemperature sensors(&oneWire);
-DHT_Unified dht(14, DHTTYPE);
-
 
 
 /*Functions*/
+
 static void init_sensors(void);
 static void status_temp(void);
 
@@ -37,7 +33,6 @@ static void setReleStatus(bool releStatus);
 
 
 static float  getTemp(void);
-
 static size_t getTempLastTSeconds(uint32_t seconds,float* temps);
 
 static void resetTimeRecord();
@@ -54,23 +49,20 @@ void setup() {
   
   // Set delay between sensor readings based on sensor d  etails.
   delayMS = 500;
-
   
 }
 
 void loop() {
   
   delay(DELAY);
-
   
   static uint8_t counterTemp = 0;
   if (counterTemp % 2)
-		{
-			newTemp();
-		}
+    {
+      newTemp();
+    }
 
   counterTemp++;
-
   
   uint8_t command;
   float temp1min[60u]={0};
@@ -92,7 +84,7 @@ void loop() {
           }
         case('2'):
           {
-						// Serial.print("Temperature (1 min):  ");
+	    // Serial.print("Temperature (1 min):  ");
             elementToPrint = getTempLastTSeconds(60u,temp1min); 
             for (;i<elementToPrint;i++)
               {
@@ -107,7 +99,7 @@ void loop() {
             setReleStatus(!getReleStatus());
             break;
           }
-				case ('4'):
+	case ('4'):
           {
             Serial.println(counterErrorsTemp);
             break;
@@ -120,13 +112,10 @@ void loop() {
 
 static void init_sensors (void)
 {
-
-  
   pinMode(RELE_PIN, OUTPUT);
   digitalWrite(RELE_PIN, LOW);
   gReleStatus = LOW;
-
-	sensors.begin();
+  sensors.begin();
  
  
 }
@@ -136,16 +125,14 @@ static void init_sensors (void)
 
 static void status_temp(void)
 {
-  //Serial.println(F("DHTxx Unified Sensor Example"));
-  // Print temperature sensor details.
-  //sensor_t sensor;
+  
   sensors.requestTemperatures();
   float temp = sensors.getTempCByIndex(0);
 
   if (temp != DEVICE_DISCONNECTED_C)
-		{
-			Serial.print(temp);
-		}
+    {
+      Serial.print(temp);
+    }
  
   Serial.println(F("------------------------------------"));  
 }
@@ -172,7 +159,7 @@ static float getTemp(void)
  
   for (;i<counterTemperatures;i++)
     {
-			temp+= auxTemp[i];
+      temp+= auxTemp[i];
     }
   temp = temp / counterTemperatures ;
   return temp;
@@ -210,29 +197,25 @@ static void newTemp(void)
   float temp = sensors.getTempCByIndex(0);
 
   if (temp != DEVICE_DISCONNECTED_C)
-		{
+    {
     
-  
- 
+      if(firstTemperature)
+	{
+	  avgTemperature = temp;
+	  firstTemperature = false;
+	} 
+      else if(temp > avgTemperature * 1.30f ||  temp < avgTemperature * 0.70)
+	{
+	  counterErrorsTemp++;
+	}
+      else
+	{
+	  gTimeRecord[gCountertimeRecord % MAX_TIME_RECORD]= temp;
 
-			if(firstTemperature)
-				{
-					avgTemperature = temp;
-					firstTemperature = false;
-				} 
-			else if(temp > avgTemperature * 1.30f ||  temp < avgTemperature * 0.70)
-				{
-					counterErrorsTemp++;
-				}
-			else
-				{
-					gTimeRecord[gCountertimeRecord % MAX_TIME_RECORD]= temp;
-
-					gCountertimeRecord == MAX_TIME_RECORD ? bufferFull = true: bufferFull = false;
+	  gCountertimeRecord == MAX_TIME_RECORD ? bufferFull = true: bufferFull = false;
   
-					gCountertimeRecord = (gCountertimeRecord + 1) % MAX_TIME_RECORD; 
-					avgTemperature = (avgTemperature + temp) /2 ;
-				}
-		}
-  
+	  gCountertimeRecord = (gCountertimeRecord + 1) % MAX_TIME_RECORD; 
+	  avgTemperature = (avgTemperature + temp) /2 ;
+	}
+    } 
 }
